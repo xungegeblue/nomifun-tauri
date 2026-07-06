@@ -13,3 +13,9 @@
 
 ## 二开文档
 - Git 工作手册位于 `docs/wiki/git-workflow.md`
+
+## 开发文档
+- 前后端开发流程指南位于 `helloagents/modules/development-workflow.md`
+- 基于 requirement + knowledge 模块实践提炼，具有普适性
+- 涵盖后端：功能拓扑、命名规范、数据库规范、API规范
+- 涵盖前端：API注册(ipcBridge)、页面命名、组件规范、样式规范(UnoCSS+CSS变量+Arco覆盖)
