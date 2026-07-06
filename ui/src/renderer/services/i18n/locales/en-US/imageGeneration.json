@@ -1,0 +1,24 @@
+{
+  "title": "AI Image Generation",
+  "subtitle": "AI Image Generation",
+  "selectModel": "Select Model",
+  "selectScenario": "Select Scenario",
+  "prompt": "Prompt",
+  "promptPlaceholder": "Describe the image you want to generate...",
+  "advancedSettings": "Advanced Settings",
+  "generate": "Generate",
+  "generating": "Generating...",
+  "generateOk": "Generated successfully",
+  "generateError": "Generation failed",
+  "result": "Result",
+  "download": "Download",
+  "regenerate": "Regenerate",
+  "apiKeyPlaceholder": "Please enter ModelVerse API Key",
+  "noApiKey": "Please configure API Key first",
+  "scenarios": {
+    "general": "General",
+    "social_media": "Social Media",
+    "ecommerce": "E-commerce",
+    "education": "Education"
+  }
+}

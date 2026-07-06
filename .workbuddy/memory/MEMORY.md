@@ -15,7 +15,15 @@
 - Git 工作手册位于 `docs/wiki/git-workflow.md`
 
 ## 开发文档
+- Git 工作手册位于 `docs/wiki/git-workflow.md`
 - 前后端开发流程指南位于 `helloagents/modules/development-workflow.md`
 - 基于 requirement + knowledge 模块实践提炼，具有普适性
 - 涵盖后端：功能拓扑、命名规范、数据库规范、API规范
 - 涵盖前端：API注册(ipcBridge)、页面命名、组件规范、样式规范(UnoCSS+CSS变量+Arco覆盖)
+
+## AI 生图模块
+- 计划包位于 `helloagents/plan/image-module-plan.md`
+- 设计模式：后端 Registry+Strategy（模型适配），前端 Schema-driven+Scenario Overlay（场景叠加）
+- 关键决策：行业/场景放在前端管理，后端只管模型翻译和API调用
+- 当前仅接入豆包 doubao-seedream-4.5（ModelVerse API端点）
+- 开发完成后再创建模块文档 `helloagents/modules/image-module-design.md`

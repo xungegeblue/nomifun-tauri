@@ -20,6 +20,7 @@ import google from './google.json';
 import cron from './cron.json';
 import requirements from './requirements.json';
 import idmm from './idmm.json';
+import imageGeneration from './imageGeneration.json';
 import starOffice from './starOffice.json';
 import guid from './guid.json';
 import agent from './agent.json';
@@ -52,6 +53,7 @@ export default {
   cron,
   requirements,
   idmm,
+  imageGeneration,
   starOffice,
   guid,
   agent,

@@ -3966,3 +3966,29 @@ export const knowledge = {
     (p) => ({ kbId: p.kbId, scope: p.scope })
   ),
 };
+
+// ── Image generation types ──
+export interface IModelInfo { name: string; label: string; }
+export interface ISchemaField {
+  key: string; fieldType: string; label: string; required: boolean;
+  defaultValue?: unknown; options?: { value: string; label: string }[];
+  min?: number; max?: number;
+}
+export interface ISchemaResponse { fields: ISchemaField[]; defaultValues: Record<string, unknown>; }
+export interface IGenerateResult { imageUrl: string; model: string; metadata?: Record<string, unknown>; }
+export interface IGenerateRequest {
+  model: string; apiKey: string; prompt: string; size?: string; images?: string[];
+  watermark?: boolean; stream?: boolean; responseFormat?: string; extra?: Record<string, unknown>;
+}
+
+// ── Image generation ──
+export const image = {
+  listModels: httpGet<IModelInfo[], void>('/api/image/models'),
+  getSchema: httpGet<ISchemaResponse, { model: string }>(
+    (p) => `/api/image/schema?model=${encodeURIComponent(p.model)}`
+  ),
+  generate: httpPost<IGenerateResult, IGenerateRequest>(
+    '/api/image/generate',
+    (p) => p
+  ),
+};

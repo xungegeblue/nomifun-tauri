@@ -16,6 +16,7 @@ import { useKnowledgeInboxPending } from '@renderer/pages/knowledge/useKnowledge
 import {
   SiderAssistantSkillsEntry,
   SiderConversationEntry,
+  SiderImageGenerationEntry,
   SiderKnowledgeEntry,
   SiderMcpEntry,
   SiderModelHubEntry,
@@ -93,6 +94,7 @@ const Sider: React.FC<SiderProps> = ({ onSessionClick, collapsed = false }) => {
   const handleMcpClick = () => navTo('/mcp');
   const handleOpenCapabilitiesClick = () => navTo('/open-capabilities');
   const handleModelHubClick = () => navTo('/models');
+  const handleImageGenerationClick = () => navTo('/image-generation');
 
   const handleSettingsClick = () => {
     cleanupSiderTooltips();
@@ -236,6 +238,14 @@ const Sider: React.FC<SiderProps> = ({ onSessionClick, collapsed = false }) => {
               collapsed={collapsed}
               siderTooltipProps={siderTooltipProps}
               onClick={handleMcpClick}
+            />
+            {/* Image Generation — AI image generation tool */}
+            <SiderImageGenerationEntry
+              isMobile={isMobile}
+              isActive={pathname.startsWith('/image-generation')}
+              collapsed={collapsed}
+              siderTooltipProps={siderTooltipProps}
+              onClick={handleImageGenerationClick}
             />
           </div>
         )}

@@ -18,7 +18,7 @@
     "release:mac": "bun scripts/run-mac-release.mjs",
     "release:win": "bun scripts/run-win-release.mjs",
     "build:ui": "bun run --filter=./ui build",
-    "serve:web": "bun scripts/prune-build.mjs && bun scripts/free-ports.mjs 8787 && cargo run -p nomifun-web",
+    "serve:web": "bun scripts/prune-build.mjs && bun scripts/free-ports.mjs 8787 && cargo run -p nomifun-web -- --insecure-no-auth",
     "test": "bun scripts/prune-build.mjs && cargo test",
     "test:fast": "bun scripts/prune-build.mjs && cargo nextest run",
     "check": "bun run typecheck && bun run check:i18n && bun run check:theme && bun run help --check",

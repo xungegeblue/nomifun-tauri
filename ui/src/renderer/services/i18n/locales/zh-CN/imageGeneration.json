@@ -1,0 +1,24 @@
+{
+  "title": "AI 生图",
+  "subtitle": "AI 图像生成",
+  "selectModel": "选择模型",
+  "selectScenario": "选择场景",
+  "prompt": "提示词",
+  "promptPlaceholder": "描述你想要生成的图像内容...",
+  "advancedSettings": "高级设置",
+  "generate": "生成",
+  "generating": "生成中...",
+  "generateOk": "生成成功",
+  "generateError": "生成失败",
+  "result": "生成结果",
+  "download": "下载",
+  "regenerate": "重新生成",
+  "apiKeyPlaceholder": "请输入 ModelVerse API Key",
+  "noApiKey": "请先配置 API Key",
+  "scenarios": {
+    "general": "通用",
+    "social_media": "自媒体",
+    "ecommerce": "电商",
+    "education": "教育"
+  }
+}

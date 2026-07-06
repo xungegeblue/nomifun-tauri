@@ -30,6 +30,7 @@ const KnowledgeListPage = React.lazy(() => import('@renderer/pages/knowledge/Kno
 const KnowledgeDetailPage = React.lazy(() => import('@renderer/pages/knowledge/KnowledgeDetailPage'));
 const CompanionPage = React.lazy(() => import('@renderer/pages/companion'));
 const ConversationShell = React.lazy(() => import('@renderer/pages/conversation/components/ConversationShell'));
+const ImageGenerationPage = React.lazy(() => import('@renderer/pages/imageGeneration'));
 
 const withRouteFallback = (Component: React.LazyExoticComponent<React.ComponentType>) => (
   <RouteErrorBoundary>
@@ -224,6 +225,8 @@ const PanelRoute: React.FC<{ layout: React.ReactElement }> = ({ layout }) => {
           <Route path='/public-companions/:id' element={withRouteFallback(PublicAgentDetailPage)} />
           <Route path='/knowledge' element={withRouteFallback(KnowledgeListPage)} />
           <Route path='/knowledge/:id' element={withRouteFallback(KnowledgeDetailPage)} />
+          {/* Image generation — AI-powered image creation workspace */}
+          <Route path='/image-generation' element={withRouteFallback(ImageGenerationPage)} />
         </Route>
         <Route path='*' element={<Navigate to={status === 'authenticated' ? '/guid' : '/login'} replace />} />
       </Routes>

@@ -67,6 +67,7 @@ nomifun-conversation.workspace = true
 nomifun-extension.workspace = true
 nomifun-channel.workspace = true
 nomifun-cron.workspace = true
+nomifun-image.workspace = true
 nomifun-requirement.workspace = true
 nomifun-idmm.workspace = true
 nomifun-knowledge.workspace = true
