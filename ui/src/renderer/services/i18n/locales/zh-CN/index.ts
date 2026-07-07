@@ -21,6 +21,7 @@ import cron from './cron.json';
 import requirements from './requirements.json';
 import idmm from './idmm.json';
 import imageGeneration from './imageGeneration.json';
+import videoGeneration from './videoGeneration.json';
 import starOffice from './starOffice.json';
 import guid from './guid.json';
 import agent from './agent.json';
@@ -54,6 +55,7 @@ export default {
   requirements,
   idmm,
   imageGeneration,
+  videoGeneration,
   starOffice,
   guid,
   agent,

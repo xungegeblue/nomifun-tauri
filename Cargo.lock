@@ -5370,6 +5370,7 @@ dependencies = [
  "nomifun-shell",
  "nomifun-system",
  "nomifun-terminal",
+ "nomifun-video",
  "nomifun-webhook",
  "reqwest 0.12.28",
  "rmcp",
@@ -6066,6 +6067,22 @@ dependencies = [
  "serde_json",
  "tempfile",
  "thiserror 2.0.18",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "nomifun-video"
+version = "0.2.7"
+dependencies = [
+ "async-trait",
+ "axum",
+ "nomifun-api-types",
+ "nomifun-auth",
+ "nomifun-common",
+ "reqwest 0.12.28",
+ "serde",
+ "serde_json",
  "tokio",
  "tracing",
 ]

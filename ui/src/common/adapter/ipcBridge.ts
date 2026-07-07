@@ -3992,3 +3992,31 @@ export const image = {
     (p) => p
   ),
 };
+
+// ── Video generation ──
+export interface IVideoModelInfo { name: string; label: string; }
+export interface IVideoSchemaResponse { fields: ISchemaField[]; defaultValues: Record<string, unknown>; }
+export interface IVideoSubmitResult { taskId: string; requestId?: string; }
+export interface IVideoSubmitRequest {
+  model: string; apiKey: string; prompt: string; duration?: number;
+  modelParams: Record<string, unknown>;
+}
+export interface IVideoTaskStatus {
+  taskId: string; taskStatus: string; urls?: string[];
+  submitTime?: number; finishTime?: number; errorMessage?: string;
+  duration?: number; requestId?: string;
+}
+
+export const video = {
+  listModels: httpGet<IVideoModelInfo[], void>('/api/video/models'),
+  getSchema: httpGet<IVideoSchemaResponse, { model: string }>(
+    (p) => `/api/video/schema?model=${encodeURIComponent(p.model)}`
+  ),
+  submit: httpPost<IVideoSubmitResult, IVideoSubmitRequest>(
+    '/api/video/submit',
+    (p) => p
+  ),
+  getStatus: httpGet<IVideoTaskStatus, { task_id: string; api_key: string }>(
+    (p) => `/api/video/status?task_id=${encodeURIComponent(p.task_id)}&api_key=${encodeURIComponent(p.api_key)}`
+  ),
+};

@@ -1,0 +1,23 @@
+{
+  "title": "AI Video",
+  "subtitle": "AI Video Generation",
+  "selectModel": "Select Model",
+  "prompt": "Prompt",
+  "promptPlaceholder": "Describe the video you want to generate...",
+  "advancedSettings": "Advanced Settings",
+  "generate": "Generate",
+  "generating": "Submitting...",
+  "submitOk": "Task submitted",
+  "submitError": "Submission failed",
+  "apiKeyPlaceholder": "Please enter ModelVerse API Key",
+  "noApiKey": "Please configure API Key first",
+  "taskList": "Task List",
+  "noTasks": "No tasks",
+  "statusPending": "Pending",
+  "statusRunning": "Generating",
+  "statusSuccess": "Completed",
+  "statusFailure": "Failed",
+  "statusExpired": "Expired",
+  "refreshStatus": "Refresh Status",
+  "polling": "Auto-polling..."
+}

@@ -1,0 +1,23 @@
+{
+  "title": "AI 视频",
+  "subtitle": "AI 视频生成",
+  "selectModel": "选择模型",
+  "prompt": "提示词",
+  "promptPlaceholder": "描述你想要生成的视频内容...",
+  "advancedSettings": "高级设置",
+  "generate": "生成",
+  "generating": "提交中...",
+  "submitOk": "任务已提交",
+  "submitError": "提交失败",
+  "apiKeyPlaceholder": "请输入 ModelVerse API Key",
+  "noApiKey": "请先配置 API Key",
+  "taskList": "任务列表",
+  "noTasks": "暂无任务",
+  "statusPending": "等待中",
+  "statusRunning": "生成中",
+  "statusSuccess": "已完成",
+  "statusFailure": "失败",
+  "statusExpired": "已过期",
+  "refreshStatus": "刷新状态",
+  "polling": "自动轮询中..."
+}

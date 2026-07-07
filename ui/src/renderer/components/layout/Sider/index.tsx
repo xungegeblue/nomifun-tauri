@@ -17,6 +17,7 @@ import {
   SiderAssistantSkillsEntry,
   SiderConversationEntry,
   SiderImageGenerationEntry,
+  SiderVideoGenerationEntry,
   SiderKnowledgeEntry,
   SiderMcpEntry,
   SiderModelHubEntry,
@@ -95,6 +96,7 @@ const Sider: React.FC<SiderProps> = ({ onSessionClick, collapsed = false }) => {
   const handleOpenCapabilitiesClick = () => navTo('/open-capabilities');
   const handleModelHubClick = () => navTo('/models');
   const handleImageGenerationClick = () => navTo('/image-generation');
+  const handleVideoGenerationClick = () => navTo('/video-generation');
 
   const handleSettingsClick = () => {
     cleanupSiderTooltips();
@@ -246,6 +248,14 @@ const Sider: React.FC<SiderProps> = ({ onSessionClick, collapsed = false }) => {
               collapsed={collapsed}
               siderTooltipProps={siderTooltipProps}
               onClick={handleImageGenerationClick}
+            />
+            {/* Video Generation — AI video generation tool */}
+            <SiderVideoGenerationEntry
+              isMobile={isMobile}
+              isActive={pathname.startsWith('/video-generation')}
+              collapsed={collapsed}
+              siderTooltipProps={siderTooltipProps}
+              onClick={handleVideoGenerationClick}
             />
           </div>
         )}

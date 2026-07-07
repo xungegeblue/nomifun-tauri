@@ -35,6 +35,7 @@ nomifun-gateway = { path = "crates/backend/nomifun-gateway" }
 nomifun-public = { path = "crates/backend/nomifun-public" }
 nomifun-webhook = { path = "crates/backend/nomifun-webhook" }
 nomifun-image = { path = "crates/backend/nomifun-image" }
+nomifun-video = { path = "crates/backend/nomifun-video" }
 nomifun-orchestrator = { path = "crates/backend/nomifun-orchestrator" }
 nomifun-terminal = { path = "crates/backend/nomifun-terminal" }
 nomifun-assistant = { path = "crates/backend/nomifun-assistant" }

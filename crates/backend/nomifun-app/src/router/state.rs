@@ -30,6 +30,7 @@ use nomifun_extension::{
 use nomifun_file::{FileRouterState, FileService, FileWatchService, SnapshotService};
 use nomifun_idmm::{IdmmManager, IdmmRouterState};
 use nomifun_image::{ImageRouterState, ImageService};
+use nomifun_video::{VideoRouterState, VideoService};
 use nomifun_knowledge::KnowledgeRouterState;
 use nomifun_mcp::{
     ClaudeAdapter, CodeBuddyAdapter, CodexAdapter, GeminiAdapter, McpAgentAdapter, McpConfigService,
@@ -84,6 +85,7 @@ pub struct ModuleStates {
     pub idmm: IdmmRouterState,
     pub knowledge: KnowledgeRouterState,
     pub image: ImageRouterState,
+    pub video: VideoRouterState,
     pub companion: CompanionRouterState,
     pub public_agent: PublicAgentRouterState,
     pub webhook: WebhookRouterState,
@@ -219,6 +221,9 @@ pub async fn build_module_states(services: &AppServices) -> (ModuleStates, Chann
         knowledge: KnowledgeRouterState::new(services.knowledge_service.clone()),
         image: ImageRouterState {
             image_service: std::sync::Arc::new(ImageService::new()),
+        },
+        video: VideoRouterState {
+            video_service: std::sync::Arc::new(VideoService::new()),
         },
         companion: companion_state,
         public_agent: PublicAgentRouterState::new(services.public_agent_service.clone()),

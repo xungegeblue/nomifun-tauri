@@ -2,6 +2,7 @@ export { default as ConversationSiderActions } from './ConversationSiderActions'
 export { default as SiderAssistantSkillsEntry } from './SiderAssistantSkillsEntry';
 export { default as SiderConversationEntry } from './SiderConversationEntry';
 export { default as SiderImageGenerationEntry } from './SiderImageGenerationEntry';
+export { default as SiderVideoGenerationEntry } from './SiderVideoGenerationEntry';
 export { default as SiderMcpEntry } from './SiderMcpEntry';
 export { default as SiderKnowledgeEntry } from './SiderKnowledgeEntry';
 export { default as SiderModelHubEntry } from './SiderModelHubEntry';
