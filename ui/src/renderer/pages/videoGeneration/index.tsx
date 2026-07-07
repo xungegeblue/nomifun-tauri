@@ -7,6 +7,7 @@
 /**
  * VideoGenerationPage — AI-powered video creation workspace.
  *
+ * Layout: left config panel + right result panel.
  * Flow: select model → fill dynamic form → submit → poll status → view result.
  * API key is passed from frontend (localStorage cache), no backend storage.
  * Task state is maintained in component memory only.
@@ -14,7 +15,7 @@
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Button, Card, Input, Message, Select, Spin, Typography } from '@arco-design/web-react';
-import { IconVideo, IconLoading, IconRefresh } from '@arco-design/web-react/icon';
+import { IconFileVideo, IconLoading, IconRefresh } from '@arco-design/web-react/icon';
 import { ipcBridge } from '@/common';
 import type { IVideoModelInfo, IVideoSchemaField, IVideoSchemaResponse, IVideoTaskStatus } from '@/common/adapter/ipcBridge';
 import { NomiSchemaForm } from '@/renderer/components/NomiSchemaForm';
@@ -195,141 +196,151 @@ export default function VideoGenerationPage() {
   );
 
   return (
-    <div style={{ padding: '24px', maxWidth: 960, margin: '0 auto' }}>
+    <div style={{ padding: '24px 32px', height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       {/* ── Title ── */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
-        <IconVideo style={{ fontSize: 24, color: 'var(--color-primary-6)' }} />
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16, flexShrink: 0 }}>
+        <IconFileVideo style={{ fontSize: 24, color: 'var(--color-primary-6)' }} />
         <Title heading={5} style={{ margin: 0 }}>AI 视频生成</Title>
       </div>
 
-      {/* ── Config Card ── */}
-      <Card bordered={false} style={{ marginBottom: 16 }}>
-        {/* Model selector */}
-        <div style={{ marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ width: 80, flexShrink: 0 }}>模型</span>
-          <Select
-            value={selectedModel}
-            onChange={setSelectedModel}
-            style={{ width: 240 }}
-            placeholder={models.length === 0 ? '暂无可用模型' : '选择模型'}
-          >
-            {models.map((m) => (
-              <Select.Option key={m.name} value={m.name}>{m.label}</Select.Option>
-            ))}
-          </Select>
-        </div>
-
-        {/* API Key */}
-        <div style={{ marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ width: 80, flexShrink: 0 }}>API Key</span>
-          <Input
-            value={apiKey}
-            onChange={handleApiKeyChange}
-            placeholder="ModelVerse API Key"
-            style={{ flex: 1 }}
-            type="password"
-          />
-        </div>
-
-        {/* Prompt */}
-        <div style={{ marginBottom: 12 }}>
-          <span style={{ display: 'block', marginBottom: 4, fontWeight: 500 }}>提示词</span>
-          <Input.TextArea
-            value={String(formValues.prompt ?? '')}
-            onChange={(val) => setFormValues((prev) => ({ ...prev, prompt: val }))}
-            placeholder="描述你想要生成的视频内容..."
-            autoSize={{ minRows: 3, maxRows: 6 }}
-          />
-        </div>
-
-        {/* Dynamic form for model-specific params */}
-        {formSchema.length > 0 && (
-          <div style={{ marginBottom: 12 }}>
-            <NomiSchemaForm
-              schema={formSchema as any}
-              defaults={schemaDefaults}
-              values={formValues}
-              onChange={setFormValues}
-              disabled={submitting}
-            />
-          </div>
-        )}
-
-        {/* Submit button */}
-        <Button
-          type="primary"
-          long
-          onClick={handleSubmit}
-          loading={submitting}
-          disabled={!apiKey || !selectedModel}
-          icon={<IconVideo />}
-        >
-          {submitting ? '提交中...' : '生成视频'}
-        </Button>
-      </Card>
-
-      {/* ── Task List Card ── */}
-      <Card bordered={false} title="任务列表">
-        {tasks.length === 0 && (
-          <div style={{ textAlign: 'center', padding: '32px 0', color: 'var(--color-text-3)' }}>
-            <IconVideo style={{ fontSize: 48, marginBottom: 8, display: 'block', margin: '0 auto' }} />
-            <Text type="secondary">提交任务后在此查看进度</Text>
-          </div>
-        )}
-
-        {tasks.map((task) => (
-          <Card
-            key={task.taskId}
-            bordered
-            style={{ marginBottom: 8 }}
-            size="small"
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div>
-                <Text bold>{task.model}</Text>
-                <Text type="secondary" style={{ marginLeft: 8, fontSize: 12 }}>
-                  {task.taskId.slice(0, 12)}...
-                </Text>
-                <Text
-                  style={{ marginLeft: 8, color: statusColor(task.status), fontWeight: 500 }}
-                >
-                  {statusLabel(task.status)}
-                </Text>
-              </div>
-              {(task.status === 'Pending' || task.status === 'Running') && (
-                <Button
-                  size="small"
-                  icon={<IconRefresh />}
-                  onClick={() => refreshTask(task)}
-                >
-                  刷新
-                </Button>
-              )}
+      {/* ── Two-column layout ── */}
+      <div style={{ display: 'flex', gap: 20, flex: 1, minHeight: 0 }}>
+        {/* ── Left: Config panel ── */}
+        <div style={{ width: 380, flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 12, overflowY: 'auto' }}>
+          <Card bordered={false} style={{ flexShrink: 0 }}>
+            {/* Model selector */}
+            <div style={{ marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ width: 72, flexShrink: 0, color: 'var(--color-text-2)' }}>模型</span>
+              <Select
+                value={selectedModel}
+                onChange={setSelectedModel}
+                style={{ flex: 1 }}
+                placeholder={models.length === 0 ? '暂无可用模型' : '选择模型'}
+              >
+                {models.map((m) => (
+                  <Select.Option key={m.name} value={m.name}>{m.label}</Select.Option>
+                ))}
+              </Select>
             </div>
 
-            {/* Error message */}
-            {task.errorMessage && (
-              <Text type="danger" style={{ display: 'block', marginTop: 4, fontSize: 12 }}>
-                {task.errorMessage}
-              </Text>
-            )}
+            {/* API Key */}
+            <div style={{ marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ width: 72, flexShrink: 0, color: 'var(--color-text-2)' }}>API Key</span>
+              <Input
+                value={apiKey}
+                onChange={handleApiKeyChange}
+                placeholder="ModelVerse API Key"
+                style={{ flex: 1 }}
+                type="password"
+              />
+            </div>
 
-            {/* Video result */}
-            {task.status === 'Success' && task.urls && task.urls.length > 0 && (
-              <div style={{ marginTop: 8 }}>
-                {task.urls.map((url, i) => (
-                  <video
-                    key={i}
-                    src={url}
-                    controls
-                    style={{ width: '100%', maxHeight: 360, borderRadius: 8, marginTop: i > 0 ? 8 : 0 }}
-                  />
-                ))}
+            {/* Prompt */}
+            <div style={{ marginBottom: 12 }}>
+              <span style={{ display: 'block', marginBottom: 4, fontWeight: 500 }}>提示词</span>
+              <Input.TextArea
+                value={String(formValues.prompt ?? '')}
+                onChange={(val) => setFormValues((prev) => ({ ...prev, prompt: val }))}
+                placeholder="描述你想要生成的视频内容..."
+                autoSize={{ minRows: 3, maxRows: 6 }}
+              />
+            </div>
+
+            {/* Dynamic form for model-specific params */}
+            {formSchema.length > 0 && (
+              <div style={{ marginBottom: 12 }}>
+                <NomiSchemaForm
+                  schema={formSchema as any}
+                  defaults={schemaDefaults}
+                  values={formValues}
+                  onChange={setFormValues}
+                  disabled={submitting}
+                />
               </div>
             )}
+
+            {/* Submit button */}
+            <Button
+              type="primary"
+              long
+              onClick={handleSubmit}
+              loading={submitting}
+              disabled={!apiKey || !selectedModel}
+              icon={<IconFileVideo />}
+            >
+              {submitting ? '提交中...' : '生成视频'}
+            </Button>
           </Card>
-        ))}
-      </Card>
+        </div>
+
+        {/* ── Right: Result panel ── */}
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+          <Card
+            bordered={false}
+            title="任务列表"
+            style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}
+            bodyStyle={{ flex: 1, overflowY: 'auto', padding: '12px' }}
+          >
+            {tasks.length === 0 && (
+              <div style={{ textAlign: 'center', padding: '64px 0', color: 'var(--color-text-3)' }}>
+                <IconFileVideo style={{ fontSize: 48, display: 'block', margin: '0 auto 12px' }} />
+                <Text type="secondary">提交任务后在此查看进度</Text>
+              </div>
+            )}
+
+            {tasks.map((task) => (
+              <Card
+                key={task.taskId}
+                bordered
+                style={{ marginBottom: 10 }}
+                size="small"
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <Text bold>{task.model}</Text>
+                    <Text type="secondary" style={{ fontSize: 12 }}>
+                      {task.taskId.slice(0, 12)}...
+                    </Text>
+                    <Text style={{ color: statusColor(task.status), fontWeight: 500 }}>
+                      {statusLabel(task.status)}
+                    </Text>
+                  </div>
+                  {(task.status === 'Pending' || task.status === 'Running') && (
+                    <Button
+                      size="small"
+                      icon={<IconRefresh />}
+                      onClick={() => refreshTask(task)}
+                    >
+                      刷新
+                    </Button>
+                  )}
+                </div>
+
+                {/* Error message */}
+                {task.errorMessage && (
+                  <Text type="danger" style={{ display: 'block', marginTop: 4, fontSize: 12 }}>
+                    {task.errorMessage}
+                  </Text>
+                )}
+
+                {/* Video result */}
+                {task.status === 'Success' && task.urls && task.urls.length > 0 && (
+                  <div style={{ marginTop: 10 }}>
+                    {task.urls.map((url, i) => (
+                      <video
+                        key={i}
+                        src={url}
+                        controls
+                        style={{ width: '100%', maxHeight: 420, borderRadius: 8, marginTop: i > 0 ? 8 : 0 }}
+                      />
+                    ))}
+                  </div>
+                )}
+              </Card>
+            ))}
+          </Card>
+        </div>
+      </div>
     </div>
   );
 }
