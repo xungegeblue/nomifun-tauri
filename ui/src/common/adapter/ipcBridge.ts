@@ -4020,3 +4020,19 @@ export const video = {
     (p) => `/api/video/status?task_id=${encodeURIComponent(p.task_id)}&api_key=${encodeURIComponent(p.api_key)}`
   ),
 };
+
+// ── Text generation types ──
+export interface ITextModelInfo { name: string; label: string; }
+export interface ITextChatResponse { content: string; model: string; usage?: ITokenUsage; }
+export interface ITextChatRequest {
+  model: string; apiKey: string; messages: IChatMessage[];
+  stream?: boolean; temperature?: number; maxTokens?: number;
+}
+export interface IChatMessage { role: string; content: string; }
+export interface ITokenUsage { promptTokens: number; completionTokens: number; totalTokens: number; }
+
+// ── Text generation ──
+export const text = {
+  listModels: httpGet<ITextModelInfo[], void>('/api/text/models'),
+  chat: httpPost<ITextChatResponse, ITextChatRequest>('/api/text/chat', (p) => p),
+};

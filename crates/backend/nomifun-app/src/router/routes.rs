@@ -26,6 +26,7 @@ use nomifun_extension::{extension_routes, hub_routes, skill_routes};
 use nomifun_file::file_routes;
 use nomifun_idmm::idmm_routes;
 use nomifun_image::image_routes;
+use nomifun_image::text_routes;
 use nomifun_video::video_routes;
 use nomifun_knowledge::knowledge_routes;
 use nomifun_mcp::mcp_routes;
@@ -419,6 +420,10 @@ pub fn create_router_with_all_state(
     let image_authenticated = image_routes(states.image)
         .route_layer(from_fn_with_state(auth_mw_state.clone(), auth_middleware));
 
+    // Text generation routes protected by auth middleware
+    let text_authenticated = text_routes(states.image)
+        .route_layer(from_fn_with_state(auth_mw_state.clone(), auth_middleware));
+
     // Video generation routes protected by auth middleware
     let video_authenticated = video_routes(states.video)
         .route_layer(from_fn_with_state(auth_mw_state.clone(), auth_middleware));
@@ -576,6 +581,7 @@ pub fn create_router_with_all_state(
         .merge(public_agent_authenticated)
         .merge(knowledge_authenticated)
         .merge(image_authenticated)
+        .merge(text_authenticated)
         .merge(video_authenticated)
         .merge(webhook_authenticated)
         .merge(orchestrator_authenticated)

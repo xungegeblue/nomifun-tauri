@@ -32,6 +32,8 @@ const CompanionPage = React.lazy(() => import('@renderer/pages/companion'));
 const ConversationShell = React.lazy(() => import('@renderer/pages/conversation/components/ConversationShell'));
 const ImageGenerationPage = React.lazy(() => import('@renderer/pages/imageGeneration'));
 const VideoGenerationPage = React.lazy(() => import('@renderer/pages/videoGeneration'));
+const CanvasListPage = React.lazy(() => import('@renderer/pages/canvas'));
+const CanvasEditorPage = React.lazy(() => import('@renderer/pages/canvas/CanvasEditor'));
 
 const withRouteFallback = (Component: React.LazyExoticComponent<React.ComponentType>) => (
   <RouteErrorBoundary>
@@ -229,6 +231,8 @@ const PanelRoute: React.FC<{ layout: React.ReactElement }> = ({ layout }) => {
           {/* Image generation — AI-powered image creation workspace */}
           <Route path='/image-generation' element={withRouteFallback(ImageGenerationPage)} />
           <Route path='/video-generation' element={withRouteFallback(VideoGenerationPage)} />
+          <Route path='/canvas' element={withRouteFallback(CanvasListPage)} />
+          <Route path='/canvas/:id' element={withRouteFallback(CanvasEditorPage)} />
         </Route>
         <Route path='*' element={<Navigate to={status === 'authenticated' ? '/guid' : '/login'} replace />} />
       </Routes>

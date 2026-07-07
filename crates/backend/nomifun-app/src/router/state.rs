@@ -29,7 +29,7 @@ use nomifun_extension::{
 };
 use nomifun_file::{FileRouterState, FileService, FileWatchService, SnapshotService};
 use nomifun_idmm::{IdmmManager, IdmmRouterState};
-use nomifun_image::{ImageRouterState, ImageService};
+use nomifun_image::{ImageRouterState, ImageService, TextService};
 use nomifun_video::{VideoRouterState, VideoService};
 use nomifun_knowledge::KnowledgeRouterState;
 use nomifun_mcp::{
@@ -221,6 +221,7 @@ pub async fn build_module_states(services: &AppServices) -> (ModuleStates, Chann
         knowledge: KnowledgeRouterState::new(services.knowledge_service.clone()),
         image: ImageRouterState {
             image_service: std::sync::Arc::new(ImageService::new()),
+            text_service: std::sync::Arc::new(TextService::new()),
         },
         video: VideoRouterState {
             video_service: std::sync::Arc::new(VideoService::new()),

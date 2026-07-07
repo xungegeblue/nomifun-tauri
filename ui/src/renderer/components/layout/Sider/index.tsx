@@ -15,6 +15,7 @@ import { isDesktopShell } from '@renderer/utils/platform';
 import { useKnowledgeInboxPending } from '@renderer/pages/knowledge/useKnowledge';
 import {
   SiderAssistantSkillsEntry,
+  SiderCanvasEntry,
   SiderConversationEntry,
   SiderImageGenerationEntry,
   SiderVideoGenerationEntry,
@@ -97,6 +98,7 @@ const Sider: React.FC<SiderProps> = ({ onSessionClick, collapsed = false }) => {
   const handleModelHubClick = () => navTo('/models');
   const handleImageGenerationClick = () => navTo('/image-generation');
   const handleVideoGenerationClick = () => navTo('/video-generation');
+  const handleCanvasClick = () => navTo('/canvas');
 
   const handleSettingsClick = () => {
     cleanupSiderTooltips();
@@ -248,6 +250,14 @@ const Sider: React.FC<SiderProps> = ({ onSessionClick, collapsed = false }) => {
               collapsed={collapsed}
               siderTooltipProps={siderTooltipProps}
               onClick={handleImageGenerationClick}
+            />
+            {/* Canvas — infinite canvas for AI generation */}
+            <SiderCanvasEntry
+              isMobile={isMobile}
+              isActive={pathname.startsWith('/canvas')}
+              collapsed={collapsed}
+              siderTooltipProps={siderTooltipProps}
+              onClick={handleCanvasClick}
             />
             {/* Video Generation — AI video generation tool */}
             <SiderVideoGenerationEntry

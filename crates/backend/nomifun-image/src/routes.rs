@@ -13,6 +13,7 @@ use serde::Deserialize;
 use crate::models::{GenerateRequest, GenerateResult, ModelInfo};
 use crate::schema::SchemaResponse;
 use crate::state::ImageRouterState;
+use crate::text_models::{TextChatRequest, TextChatResponse, TextModelInfo};
 
 #[derive(Debug, Deserialize)]
 struct SchemaQuery {
@@ -24,6 +25,24 @@ pub fn image_routes(state: ImageRouterState) -> Router {
         .route("/api/image/models", get(list_models))
         .route("/api/image/schema", get(get_schema))
         .route("/api/image/generate", post(generate))
+        .with_state(state)
+}
+
+/// Combined routes for image + text generation modules.
+/// Use this when registering in the main app router.
+pub fn all_routes(state: ImageRouterState) -> Router {
+    let image_router = Router::new()
+        .route("/api/image/models", get(list_models))
+        .route("/api/image/schema", get(get_schema))
+        .route("/api/image/generate", post(generate));
+
+    let text_router = Router::new()
+        .route("/api/text/models", get(list_text_models))
+        .route("/api/text/chat", post(text_chat));
+
+    Router::new()
+        .merge(image_router)
+        .merge(text_router)
         .with_state(state)
 }
 
@@ -53,5 +72,34 @@ async fn generate(
     Json(req): Json<GenerateRequest>,
 ) -> Result<Json<ApiResponse<GenerateResult>>, AppError> {
     let result = state.image_service.generate(&req.model, req.params, &req.api_key).await?;
+    Ok(Json(ApiResponse::ok(result)))
+}
+
+// ── Text generation routes ──
+
+async fn list_text_models(
+    State(state): State<ImageRouterState>,
+    Extension(_user): Extension<CurrentUser>,
+) -> Result<Json<ApiResponse<Vec<TextModelInfo>>>, AppError> {
+    let models = state.text_service.list_models();
+    Ok(Json(ApiResponse::ok(models)))
+}
+
+async fn text_chat(
+    State(state): State<ImageRouterState>,
+    Extension(_user): Extension<CurrentUser>,
+    Json(req): Json<TextChatRequest>,
+) -> Result<Json<ApiResponse<TextChatResponse>>, AppError> {
+    let result = state
+        .text_service
+        .chat(
+            &req.model,
+            req.messages,
+            &req.api_key,
+            req.stream,
+            req.temperature,
+            req.max_tokens,
+        )
+        .await?;
     Ok(Json(ApiResponse::ok(result)))
 }

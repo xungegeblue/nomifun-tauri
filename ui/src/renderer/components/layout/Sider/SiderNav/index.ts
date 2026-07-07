@@ -1,5 +1,6 @@
 export { default as ConversationSiderActions } from './ConversationSiderActions';
 export { default as SiderAssistantSkillsEntry } from './SiderAssistantSkillsEntry';
+export { default as SiderCanvasEntry } from './SiderCanvasEntry';
 export { default as SiderConversationEntry } from './SiderConversationEntry';
 export { default as SiderImageGenerationEntry } from './SiderImageGenerationEntry';
 export { default as SiderVideoGenerationEntry } from './SiderVideoGenerationEntry';

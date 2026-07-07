@@ -15,6 +15,10 @@ import type { PropsWithChildren } from 'react';
 import React, { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 
+// Flowgram React 19 polyfill
+import { unstableSetCreateRoot } from '@flowgram.ai/form-materials';
+unstableSetCreateRoot(createRoot);
+
 // Context providers
 import { AuthProvider } from './hooks/context/AuthContext';
 import { FeedbackProvider } from './hooks/context/FeedbackContext';
