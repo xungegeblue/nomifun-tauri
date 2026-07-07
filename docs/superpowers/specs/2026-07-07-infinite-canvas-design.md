@@ -2,7 +2,7 @@
 
 ## 概述
 
-基于 Flowgram Free Layout 构建无限画布功能，支持文本节点和图片节点（视频节点预留），节点间通过连线共享数据，图片节点可调用 Seedream 生图模型。画布数据前端 localStorage 存储，支持多画布管理。
+基于 Flowgram Free Layout 构建无限画布功能，支持文本节点和图片节点（视频节点预留），节点间通过连线共享数据，图片节点可调用 Seedream 生图模型，文本节点可调用大模型生成提示词。画布数据前端 localStorage 存储，支持多画布管理。
 
 ## 技术选型
 
@@ -11,6 +11,8 @@
 - **Form 引擎**：Flowgram 内置 `nodeEngine`（启用）
 - **UI 组件库**：Arco Design（与项目现有一致）
 - **生图 API**：复用后端 `/api/image/generate`（通过 ipcBridge / httpBridge）
+- **文本生成 API**：后端新增 `/api/text/chat`，调用 modelverse chat completions 接口
+- **后端模块**：图片、文本、视频的 API 统一放在 `nomifun-image` 模块中扩展
 - **持久化**：localStorage（JSON 格式，Flowgram `toJSON()` / `fromJSON()`）
 
 ### 依赖安装
@@ -71,17 +73,19 @@ unstableSetCreateRoot(createRoot);
 
 ### 文本节点 (text)
 
-**用途**：编写提示词，后续可调用大模型生成提示词，供下游图片节点使用。
+**用途**：编写提示词，可调用大模型生成提示词，供下游图片节点使用。
 
 **数据模型**：
 
 ```typescript
 interface TextNodeData {
   content: string;           // 文本内容 / 提示词
-  modelConfig?: {            // 大模型配置（后续提供 API 时接入）
-    provider?: string;
-    model?: string;
+  modelConfig?: {
+    model: string;           // 模型名称，如 "deepseek-v4-flash"
+    systemPrompt?: string;   // 系统提示词
   };
+  chatStatus?: 'idle' | 'generating' | 'done' | 'error';
+  chatError?: string;
 }
 ```
 
@@ -92,7 +96,9 @@ interface TextNodeData {
 
 **编辑（悬浮面板）**：
 - 多行文本编辑区
-- "生成提示词"按钮（后续接入大模型 API）
+- 模型选择（下拉，从后端 `/api/text/models` 获取可用模型列表）
+- 系统提示词输入（可选）
+- "生成提示词"按钮 → 调用后端 `/api/text/chat`
 
 ---
 
@@ -256,10 +262,167 @@ function getConnectedImages(node: WorkflowNodeEntity): string[] {
 
 ```
 1. 用户点击文本节点 → 弹出悬浮编辑面板
-2. 用户输入需求描述
-3. 点击"生成提示词" → 调用大模型 API（后续提供）
-4. 返回的提示词填入 content
-5. 文本节点 content 可被下游图片节点引用
+2. 用户输入需求描述（如"帮我写一段赛博朋克风格的提示词"）
+3. 选择模型（如 deepseek-v4-flash），可选填系统提示词
+4. 点击"生成提示词" → 调用后端 /api/text/chat
+5. 后端调用 modelverse chat completions API，流式/非流式返回
+6. 返回的提示词填入 content
+7. 文本节点 content 可被下游图片节点引用
+```
+
+## 后端接口扩展
+
+### 设计原则
+
+图片、文本、视频的 API 统一放在 `nomifun-image` 模块中。该模块已建立 Registry + Adapter 模式，文本生成沿用相同架构。
+
+### 新增接口
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| GET | `/api/text/models` | 返回可用文本模型列表 |
+| POST | `/api/text/chat` | 调用大模型对话（chat completions） |
+
+### 请求/响应类型
+
+**TextChatRequest**
+
+```rust
+struct TextChatRequest {
+    model: String,              // 如 "deepseek-v4-flash"
+    api_key: String,            // 前端提供的 API key
+    messages: Vec<ChatMessage>, // 对话消息列表
+    stream: Option<bool>,       // 是否流式返回（默认 false）
+    temperature: Option<f64>,   // 温度参数
+    max_tokens: Option<u32>,    // 最大 token 数
+}
+
+struct ChatMessage {
+    role: String,               // "system" | "user" | "assistant"
+    content: String,
+}
+```
+
+**TextChatResponse**
+
+```rust
+struct TextChatResponse {
+    content: String,            // 模型返回的文本内容
+    model: String,              // 实际使用的模型
+    usage: Option<TokenUsage>,  // token 用量
+}
+
+struct TokenUsage {
+    prompt_tokens: u32,
+    completion_tokens: u32,
+    total_tokens: u32,
+}
+```
+
+**TextModelInfo**
+
+```rust
+struct TextModelInfo {
+    name: String,               // 模型标识，如 "deepseek-v4-flash"
+    label: String,              // 显示名称，如 "DeepSeek V4 Flash"
+}
+```
+
+### modelverse Chat Completions 接口
+
+后端调用 modelverse 平台的统一接口：
+
+```
+POST https://api.modelverse.cn/v1/chat/completions
+Authorization: Bearer {api_key}
+Content-Type: application/json
+
+{
+  "model": "deepseek-v4-flash",
+  "messages": [
+    { "role": "system", "content": "You are a helpful assistant." },
+    { "role": "user", "content": "帮我写一段赛博朋克风格的图片提示词" }
+  ],
+  "stream": false
+}
+```
+
+### 后端模块结构扩展
+
+在 `nomifun-image` 模块中新增文本相关文件：
+
+```
+crates/backend/nomifun-image/src/
+├── adapters/
+│   ├── mod.rs           # ImageAdapter trait + ModelRegistry（已有）
+│   ├── doubao.rs        # 图片生图适配器（已有）
+│   └── modelverse_chat.rs  # 新增：文本对话适配器
+├── text_adapters/
+│   ├── mod.rs           # 新增：TextAdapter trait + TextModelRegistry
+│   └── deepseek.rs      # 新增：DeepSeek 适配器（modelverse chat）
+├── text_models.rs       # 新增：TextChatRequest, TextChatResponse, TextModelInfo
+├── text_service.rs      # 新增：TextService（类似 ImageService）
+├── text_routes.rs       # 新增：/api/text/* 路由
+├── models.rs            # 已有：图片相关类型
+├── routes.rs            # 已有：/api/image/* 路由
+├── schema.rs            # 已有
+├── service.rs           # 已有：ImageService
+├── state.rs             # 扩展：新增 TextService
+└── lib.rs               # 扩展：re-export text 模块
+```
+
+### TextAdapter Trait
+
+```rust
+#[async_trait]
+trait TextAdapter: Send + Sync {
+    fn model_name(&self) -> &str;
+    fn model_label(&self) -> &str;
+    async fn chat(
+        &self,
+        client: &reqwest::Client,
+        api_key: &str,
+        messages: &[ChatMessage],
+        stream: bool,
+        temperature: Option<f64>,
+        max_tokens: Option<u32>,
+    ) -> Result<TextChatResponse, AppError>;
+}
+```
+
+### State 扩展
+
+```rust
+#[derive(Clone)]
+pub struct ImageRouterState {
+    pub image_service: Arc<ImageService>,
+    pub text_service: Arc<TextService>,  // 新增
+}
+```
+
+### 路由注册
+
+```rust
+pub fn image_routes(state: ImageRouterState) -> Router {
+    Router::new()
+        // 已有图片路由
+        .route("/api/image/models", get(list_models))
+        .route("/api/image/schema", get(get_schema))
+        .route("/api/image/generate", post(generate))
+        // 新增文本路由
+        .route("/api/text/models", get(list_text_models))
+        .route("/api/text/chat", post(text_chat))
+        .with_state(state)
+}
+```
+
+### 前端 ipcBridge 扩展
+
+```typescript
+text: {
+  getModels: httpGet<TextModelInfo[], void>('/api/text/models'),
+  chat: httpPost<TextChatResponse, TextChatRequest>('/api/text/chat'),
+}
 ```
 
 ## 数据持久化
@@ -425,8 +588,8 @@ ui/src/renderer/pages/canvas/
 
 ## 后续扩展
 
-- **视频节点**：接入视频生成 API（Seedance 2.0 / Kling）
-- **大模型提示词生成**：文本节点接入大模型对话 API
+- **视频节点**：接入视频生成 API（Seedance 2.0 / Kling），后端接口已在 `nomifun-video` 模块
 - **后端持久化**：画布数据迁移到后端 SQLite 存储
 - **画布分享**：导出/导入画布 JSON，支持分享
 - **生图历史**：记录每次生图的参数和结果，支持回溯
+- **流式文本生成**：文本节点支持流式输出（stream: true），实时显示生成内容
