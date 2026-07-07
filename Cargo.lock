@@ -5743,7 +5743,7 @@ dependencies = [
 
 [[package]]
 name = "nomifun-image"
-version = "0.2.4"
+version = "0.2.7"
 dependencies = [
  "async-trait",
  "axum",
