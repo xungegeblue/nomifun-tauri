@@ -1,6 +1,6 @@
 //! Image generation service — wraps backend API calls.
 
-import { ipcBridge } from '@common/adapter/ipcBridge';
+import { image } from '@common/adapter/ipcBridge';
 import type { IGenerateRequest, IGenerateResult } from '@common/adapter/ipcBridge';
 
 export interface GenerateImageParams {
@@ -19,15 +19,15 @@ export async function generateImage(params: GenerateImageParams): Promise<IGener
     size: params.size,
     images: params.images,
   };
-  return ipcBridge.image.generate.invoke(request);
+  return image.generate(request);
 }
 
 export async function listImageModels() {
-  return ipcBridge.image.listModels.invoke();
+  return image.listModels();
 }
 
 export async function getImageSchema(model: string) {
-  return ipcBridge.image.getSchema.invoke({ model });
+  return image.getSchema({ model });
 }
 
 /** Convert a File object to base64 string. */

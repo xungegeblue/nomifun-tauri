@@ -417,11 +417,11 @@ pub fn create_router_with_all_state(
         .route_layer(from_fn_with_state(auth_mw_state.clone(), auth_middleware));
 
     // Image generation routes protected by auth middleware
-    let image_authenticated = image_routes(states.image)
+    let image_authenticated = image_routes(states.image.clone())
         .route_layer(from_fn_with_state(auth_mw_state.clone(), auth_middleware));
 
     // Text generation routes protected by auth middleware
-    let text_authenticated = text_routes(states.image)
+    let text_authenticated = text_routes(states.image.clone())
         .route_layer(from_fn_with_state(auth_mw_state.clone(), auth_middleware));
 
     // Video generation routes protected by auth middleware

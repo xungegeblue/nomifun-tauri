@@ -4,7 +4,6 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Tooltip } from '@arco-design/web-react';
 import { Edit, PictureOne, VideoOne } from '@icon-park/react';
-import { useClientContext } from '@flowgram.ai/free-layout-editor';
 import { CanvasNodeType } from '../nodes/registries';
 
 interface NodeToolbarProps {
@@ -20,11 +19,11 @@ const NodeToolbar: React.FC<NodeToolbarProps> = ({ onAddNode }) => {
 
   return (
     <div
-      className="flex flex-col items-center gap-8px py-12px"
+      className="flex flex-col items-center gap-8px py-8px px-4px rd-8px"
       style={{
-        width: 52,
         background: 'var(--color-bg-2)',
-        borderLeft: '1px solid var(--color-border-2)',
+        border: '1px solid var(--color-border-2)',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
       }}
     >
       <Tooltip content={t('nodeText')} position="left">

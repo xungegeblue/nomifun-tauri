@@ -3,7 +3,7 @@
 import React, { useState, useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button, Select, Input, Message } from '@arco-design/web-react';
-import { UploadOne, Generate, Close, PictureOne } from '@icon-park/react';
+import { UploadOne, MagicWand, Close, PictureOne } from '@icon-park/react';
 import { generateImage, fileToBase64 } from '../../services/imageGenerateService';
 import type { ImageNodeData } from '@common/types/canvas/canvasTypes';
 
@@ -244,7 +244,7 @@ const ImageEditPanel: React.FC<ImageEditPanelProps> = ({
         size="small"
         long
         loading={isGenerating}
-        icon={<Generate theme="outline" size="14" />}
+        icon={<MagicWand theme="outline" size="14" />}
         onClick={handleGenerate}
         disabled={!apiKey || isGenerating || !prompt.trim()}
       >

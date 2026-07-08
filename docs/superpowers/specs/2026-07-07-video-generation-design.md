@@ -356,3 +356,24 @@ Contains: `VideoModelInfo`, `VideoSubmitRequest`, `VideoTaskStatus`, `FormField`
 - `callback_url` + WebSocket notification (`video:task-update` event)
 - Task history persistence (would require database or file storage)
 - Video download/save functionality
+
+
+# 补充
+
+curl https://api.modelverse.cn/v1/chat/completions \
+ -H "Content-Type: application/json" \
+ -H "Authorization: Bearer {api_key}" \
+ -d '{
+   "model": "deepseek-v4-flash",
+   "messages": [
+     {
+       "role": "system",
+       "content": "You are a helpful assistant."
+     },
+     {
+       "role": "user",
+       "content": "一句话描述UCloud这家公司。"
+     }
+   ],
+   "stream": true
+ }' | jq

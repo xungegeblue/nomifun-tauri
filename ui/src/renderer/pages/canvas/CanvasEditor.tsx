@@ -1,17 +1,16 @@
 //! Canvas editor page — main editing view with Flowgram canvas, toolbar, and panels.
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Message } from '@arco-design/web-react';
 import { loadCanvas, saveCanvas } from './services/canvasStorage';
 import { CanvasNodeType } from './components/nodes/registries';
 import FlowEditor from './components/FlowEditor';
-import NodeToolbar from './components/panels/NodeToolbar';
+import type { NodeSelectPayload } from './components/FlowEditor';
 import CanvasToolbar from './components/toolbar/CanvasToolbar';
 import TextEditPanel from './components/panels/TextEditPanel';
 import ImageEditPanel from './components/panels/ImageEditPanel';
-import { useNodeSelection } from './components/hooks/useNodeSelection';
 import type { CanvasData } from '@common/types/canvas/canvasTypes';
 import type { TextNodeData } from '@common/types/canvas/canvasTypes';
 import type { ImageNodeData } from '@common/types/canvas/canvasTypes';
@@ -25,12 +24,20 @@ const CanvasEditor: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [apiKey, setApiKey] = useState('');
 
-  // Node selection for edit panels
-  const { selection, selectNode, deselectNode } = useNodeSelection();
+  // Flowgram playground ref — for reading/writing node data
+  const playgroundRef = useRef<any>(null);
 
-  // Current editing node data
+  // Current selection state (from Flowgram)
+  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+  const [selectedNodeType, setSelectedNodeType] = useState<string | null>(null);
+
+  // Edit panel data (synced with Flowgram nodes)
   const [editingTextData, setEditingTextData] = useState<TextNodeData | null>(null);
   const [editingImageData, setEditingImageData] = useState<ImageNodeData | null>(null);
+
+  // Connected upstream data for the selected node
+  const [referenceImages, setReferenceImages] = useState<string[]>([]);
+  const [referenceTexts, setReferenceTexts] = useState<string[]>([]);
 
   // Load canvas data
   useEffect(() => {
@@ -73,46 +80,109 @@ const CanvasEditor: React.FC = () => {
     }
   }, [canvasData, t]);
 
-  const handleAddNode = useCallback(
-    (type: string) => {
-      // Adding nodes is handled by Flowgram's FlowOperationService
-      // This is a placeholder — actual node creation will use the Flowgram API
-      console.log('Add node:', type);
-    },
-    []
-  );
+  // ---- Node selection handler (flows from Flowgram) ----
 
-  const handleNodeClick = useCallback(
-    (nodeId: string, nodeType: string) => {
-      selectNode(nodeId, nodeType);
-    },
-    [selectNode]
-  );
+  const handleNodeSelect = useCallback((payload: NodeSelectPayload) => {
+    // Deselection
+    if (!payload.nodeId || !payload.node) {
+      setSelectedNodeId(null);
+      setSelectedNodeType(null);
+      setEditingTextData(null);
+      setEditingImageData(null);
+      setReferenceImages([]);
+      setReferenceTexts([]);
+      return;
+    }
+
+    const { nodeId, nodeType, connectedImages, connectedTexts, node } = payload;
+
+    setSelectedNodeId(nodeId);
+    setSelectedNodeType(nodeType);
+    setReferenceImages(connectedImages);
+    setReferenceTexts(connectedTexts);
+
+    // Read actual node data from Flowgram and seed edit panel
+    const data = (node as any).getData?.();
+    if (nodeType === CanvasNodeType.Text) {
+      // Pre-fill prompt from connected text nodes if content is empty
+      const initialData = (data || {}) as TextNodeData;
+      if (!initialData.content && connectedTexts.length > 0) {
+        initialData.content = connectedTexts.join('\n');
+      }
+      setEditingTextData(initialData);
+    } else if (nodeType === CanvasNodeType.Image) {
+      const initialData = (data || {}) as ImageNodeData;
+      // Pre-fill prompt from connected text nodes
+      if (!initialData.prompt && connectedTexts.length > 0) {
+        initialData.prompt = connectedTexts.join('\n');
+      }
+      setEditingImageData(initialData);
+    } else {
+      setEditingTextData(null);
+      setEditingImageData(null);
+    }
+  }, []);
+
+  // ---- Data change handlers (sync back to Flowgram) ----
 
   const handleTextDataChange = useCallback(
     (changes: Partial<TextNodeData>) => {
-      if (!editingTextData) return;
       setEditingTextData((prev) => (prev ? { ...prev, ...changes } : null));
+
+      // Sync back to Flowgram node
+      const playground = playgroundRef.current;
+      if (playground && selectedNodeId) {
+        const node = playground.graph?.getNode?.(selectedNodeId);
+        if (node) {
+          const currentData = (node as any).getData?.() || {};
+          (node as any).setData?.({ ...currentData, ...changes });
+        }
+      }
     },
-    [editingTextData]
+    [selectedNodeId]
   );
 
   const handleImageDataChange = useCallback(
     (changes: Partial<ImageNodeData>) => {
-      if (!editingImageData) return;
       setEditingImageData((prev) => (prev ? { ...prev, ...changes } : null));
+
+      // Sync back to Flowgram node
+      const playground = playgroundRef.current;
+      if (playground && selectedNodeId) {
+        const node = playground.graph?.getNode?.(selectedNodeId);
+        if (node) {
+          const currentData = (node as any).getData?.() || {};
+          (node as any).setData?.({ ...currentData, ...changes });
+        }
+      }
     },
-    [editingImageData]
+    [selectedNodeId]
   );
+
+  const handleDeselectNode = useCallback(() => {
+    setSelectedNodeId(null);
+    setSelectedNodeType(null);
+    setEditingTextData(null);
+    setEditingImageData(null);
+    setReferenceImages([]);
+    setReferenceTexts([]);
+
+    // Also clear Flowgram selection
+    const playground = playgroundRef.current;
+    if (playground) {
+      playground.selectionService?.clearSelection?.();
+    }
+  }, []);
 
   const handleCreateNewImageNode = useCallback(
     (imageData: string) => {
       // This will be implemented with Flowgram's FlowOperationService
-      // For now, just log it
       console.log('Create new image node with data:', imageData.slice(0, 50));
     },
     []
   );
+
+  const hasSelection = selectedNodeId !== null;
 
   if (loading || !canvasData) {
     return (
@@ -131,47 +201,45 @@ const CanvasEditor: React.FC = () => {
         onSave={handleSave}
       />
 
-      {/* Main area: canvas + right toolbar */}
+      {/* Main area: canvas + right panels */}
       <div className="flex flex-1 overflow-hidden relative">
-        {/* Flowgram canvas */}
+        {/* Flowgram canvas — NodeToolbar is now rendered inside FlowEditor (within FreeLayoutEditorProvider) */}
         <div className="flex-1 overflow-hidden">
           <FlowEditor
             canvasId={canvasData.id}
             canvasName={canvasData.name}
             initialData={canvasData.data as Record<string, unknown>}
-            onNodeClick={handleNodeClick}
+            onNodeSelect={handleNodeSelect}
+            playgroundRef={playgroundRef}
           />
         </div>
 
-        {/* Right node toolbar */}
-        <NodeToolbar onAddNode={handleAddNode} />
-
         {/* Floating edit panels */}
-        {selection.selectedNodeId && (
+        {hasSelection && (
           <div
             className="absolute"
             style={{
-              right: 60,
+              right: 68,
               top: 8,
               zIndex: 100,
             }}
           >
-            {selection.selectedNodeType === CanvasNodeType.Text && editingTextData && (
+            {selectedNodeType === CanvasNodeType.Text && editingTextData && (
               <TextEditPanel
                 data={editingTextData}
                 apiKey={apiKey}
                 onChange={handleTextDataChange}
-                onClose={deselectNode}
+                onClose={handleDeselectNode}
               />
             )}
-            {selection.selectedNodeType === CanvasNodeType.Image && editingImageData && (
+            {selectedNodeType === CanvasNodeType.Image && editingImageData && (
               <ImageEditPanel
                 data={editingImageData}
                 apiKey={apiKey}
-                referenceImages={[]}
+                referenceImages={referenceImages}
                 onChange={handleImageDataChange}
                 onCreateNewImageNode={handleCreateNewImageNode}
-                onClose={deselectNode}
+                onClose={handleDeselectNode}
               />
             )}
           </div>

@@ -13,14 +13,12 @@ interface UseEditorPropsOptions {
   canvasId: string;
   canvasName: string;
   initialData: Record<string, unknown>;
-  onNodeClick?: (nodeId: string, nodeType: string) => void;
 }
 
 export function useEditorProps({
   canvasId,
   canvasName,
   initialData,
-  onNodeClick,
 }: UseEditorPropsOptions): FreeLayoutProps {
   return useMemo(
     () => ({
@@ -91,6 +89,6 @@ export function useEditorProps({
 
       plugins: () => [],
     }),
-    [canvasId, canvasName, initialData, onNodeClick]
+    [canvasId, canvasName, initialData]
   );
 }

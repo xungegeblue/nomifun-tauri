@@ -3,7 +3,7 @@
 import React, { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Input, Button, Select, Message } from '@arco-design/web-react';
-import { Generate, Close } from '@icon-park/react';
+import { MagicWand, Close } from '@icon-park/react';
 import { generatePrompt, listTextModels } from '../../services/textChatService';
 import type { TextNodeData } from '@common/types/canvas/canvasTypes';
 import type { ITextModelInfo } from '@common/adapter/ipcBridge';
@@ -143,7 +143,7 @@ const TextEditPanel: React.FC<TextEditPanelProps> = ({
         size="small"
         long
         loading={isGenerating}
-        icon={<Generate theme="outline" size="14" />}
+        icon={<MagicWand theme="outline" size="14" />}
         onClick={handleGenerate}
         disabled={!selectedModel || !apiKey || isGenerating}
       >

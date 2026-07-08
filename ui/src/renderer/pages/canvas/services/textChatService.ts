@@ -1,6 +1,6 @@
 //! Text chat service — wraps backend API calls.
 
-import { ipcBridge } from '@common/adapter/ipcBridge';
+import { text } from '@common/adapter/ipcBridge';
 import type { ITextChatRequest, ITextChatResponse, ITextModelInfo, IChatMessage } from '@common/adapter/ipcBridge';
 
 export interface GeneratePromptParams {
@@ -25,9 +25,9 @@ export async function generatePrompt(params: GeneratePromptParams): Promise<ITex
     stream: false,
     temperature: params.temperature,
   };
-  return ipcBridge.text.chat.invoke(request);
+  return text.chat(request);
 }
 
 export async function listTextModels(): Promise<ITextModelInfo[]> {
-  return ipcBridge.text.listModels.invoke();
+  return text.listModels();
 }

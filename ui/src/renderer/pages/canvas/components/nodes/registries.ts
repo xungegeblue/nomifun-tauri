@@ -11,6 +11,18 @@ export const CanvasNodeType = {
   Video: 'video',
 } as const;
 
+/** Default initial data for each node type (used when creating nodes). */
+export const defaultNodeData: Record<string, Record<string, unknown>> = {
+  [CanvasNodeType.Text]: {
+    content: '',
+    chatStatus: 'idle',
+  } as TextNodeData,
+  [CanvasNodeType.Image]: {
+    generateStatus: 'idle',
+  } as ImageNodeData,
+  [CanvasNodeType.Video]: {},
+};
+
 /** Text node registry. */
 export const textNodeRegistry: FlowNodeRegistry = {
   type: CanvasNodeType.Text,
@@ -19,15 +31,6 @@ export const textNodeRegistry: FlowNodeRegistry = {
       { type: 'output', portID: 'text-out', location: 'right' as const },
     ],
   },
-  onAdd: () => ({
-    id: `text_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
-    type: CanvasNodeType.Text,
-    data: {
-      content: '',
-      chatStatus: 'idle',
-    } as TextNodeData,
-    meta: { position: { x: 300, y: 200 } },
-  }),
 };
 
 /** Image node registry. */
@@ -39,14 +42,6 @@ export const imageNodeRegistry: FlowNodeRegistry = {
       { type: 'output', portID: 'image-out', location: 'right' as const },
     ],
   },
-  onAdd: () => ({
-    id: `img_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
-    type: CanvasNodeType.Image,
-    data: {
-      generateStatus: 'idle',
-    } as ImageNodeData,
-    meta: { position: { x: 300, y: 200 } },
-  }),
 };
 
 /** Video node registry (placeholder). */

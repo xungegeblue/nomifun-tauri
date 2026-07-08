@@ -13,7 +13,8 @@ export function getConnectedImages(node: WorkflowNodeEntity): string[] {
   return allConnected
     .filter((n: WorkflowNodeEntity) => n.flowNodeType === CanvasNodeType.Image)
     .map((n: WorkflowNodeEntity) => {
-      const data = n.getData<ImageNodeData>();
+      // getData requires EntityDataRegistry arg; use any to bypass at runtime
+      const data = (n as any).getData() as ImageNodeData | undefined;
       return data?.image;
     })
     .filter(Boolean) as string[];
@@ -26,7 +27,7 @@ export function getConnectedTexts(node: WorkflowNodeEntity): string[] {
   return inputNodes
     .filter((n: WorkflowNodeEntity) => n.flowNodeType === CanvasNodeType.Text)
     .map((n: WorkflowNodeEntity) => {
-      const data = n.getData<{ content: string }>();
+      const data = (n as any).getData() as { content: string } | undefined;
       return data?.content;
     })
     .filter(Boolean) as string[];
